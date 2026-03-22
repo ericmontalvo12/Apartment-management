@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 import { Building2, Hammer, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getDashboardStats } from "@/lib/queries";
@@ -12,7 +13,8 @@ export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
-  const workspaceId = (session!.user as any).workspaceId as string;
+  if (!session) redirect('/login');
+  const workspaceId = (session.user as any).workspaceId as string;
   const stats = await getDashboardStats(workspaceId);
 
   return (

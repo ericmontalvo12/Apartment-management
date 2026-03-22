@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { getDailyUpdates } from "@/lib/queries";
 import { DailyUpdateFeed } from "@/components/updates/daily-update-feed";
@@ -8,7 +9,8 @@ export const metadata: Metadata = { title: "Daily Updates" };
 
 export default async function UpdatesPage() {
   const session = await getServerSession(authOptions);
-  const workspaceId = (session!.user as any).workspaceId as string;
+  if (!session) redirect('/login');
+  const workspaceId = (session.user as any).workspaceId as string;
   const updates = await getDailyUpdates(workspaceId);
 
   const feedUpdates = updates.map((u) => ({

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { getSubcontractors } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,8 @@ export const metadata: Metadata = { title: "Subcontractors" };
 
 export default async function SubcontractorsPage() {
   const session = await getServerSession(authOptions);
-  const workspaceId = (session!.user as any).workspaceId as string;
+  if (!session) redirect('/login');
+  const workspaceId = (session.user as any).workspaceId as string;
   const subcontractors = await getSubcontractors(workspaceId);
   const activeCount = subcontractors.filter((s) => s.isActive).length;
 

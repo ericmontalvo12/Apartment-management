@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 import { Layers } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getWorkQueueItems } from "@/lib/queries";
@@ -12,7 +13,8 @@ export const metadata: Metadata = { title: "Work Queue" };
 
 export default async function WorkQueuePage() {
   const session = await getServerSession(authOptions);
-  const workspaceId = (session!.user as any).workspaceId as string;
+  if (!session) redirect('/login');
+  const workspaceId = (session.user as any).workspaceId as string;
   const items = await getWorkQueueItems(workspaceId);
   const byTrade = groupWorkQueueByTrade(items);
   const bySub = groupWorkQueueBySubcontractor(items);

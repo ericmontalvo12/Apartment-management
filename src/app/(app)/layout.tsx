@@ -6,7 +6,7 @@ import { TopBar } from "@/components/layout/top-bar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
-  if (!session) redirect("/auth/login");
+  if (!session) redirect("/login");
 
   return (
     <div className="flex h-screen overflow-hidden bg-muted/30">
