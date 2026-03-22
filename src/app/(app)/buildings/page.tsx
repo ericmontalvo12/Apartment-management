@@ -1,21 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { getBuildings } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
 import { BuildingCard } from "@/components/buildings/building-card";
-import { FilterBar } from "@/components/ui/filter-bar";
 import { EmptyState } from "@/components/ui/empty-state";
-import { MOCK_BUILDINGS } from "@/data/mock";
-
-// TODO: Replace with server action / DB query filtered by workspace
-async function getBuildings() {
-  return MOCK_BUILDINGS;
-}
 
 export const metadata: Metadata = { title: "Buildings" };
 
 export default async function BuildingsPage() {
-  const buildings = await getBuildings();
+  const session = await getServerSession(authOptions);
+  const workspaceId = (session!.user as any).workspaceId as string;
+  const buildings = await getBuildings(workspaceId);
 
   return (
     <div className="space-y-6">
@@ -26,7 +24,6 @@ export default async function BuildingsPage() {
             {buildings.length} building{buildings.length !== 1 ? "s" : ""} in your portfolio
           </p>
         </div>
-        {/* PERMISSION: Only ADMIN and PROJECT_MANAGER can add buildings */}
         <Button asChild>
           <Link href="/buildings/new">
             <Plus className="h-4 w-4 mr-2" />
@@ -34,13 +31,6 @@ export default async function BuildingsPage() {
           </Link>
         </Button>
       </div>
-
-      <FilterBar
-        filters={[
-          { key: "status", label: "Status", options: ["All", "In Progress", "Blocked", "Completed"] },
-          { key: "city", label: "City", options: ["All", "Austin", "Houston", "Dallas"] },
-        ]}
-      />
 
       {buildings.length === 0 ? (
         <EmptyState
@@ -51,7 +41,7 @@ export default async function BuildingsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {buildings.map((building) => (
-            <BuildingCard key={building.id} building={building} />
+            <BuildingCard key={building.id} building={building as any} />
           ))}
         </div>
       )}

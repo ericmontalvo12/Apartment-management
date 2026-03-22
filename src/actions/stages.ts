@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions, canManageBuildings } from "@/lib/auth";
 import { z } from "zod";
 import type { StageStatus } from "@prisma/client";
 
@@ -17,11 +19,10 @@ export type UpdateStageResult = { success: true } | { success: false; error: str
 export async function updateStageStatus(
   input: z.infer<typeof updateStageSchema>
 ): Promise<UpdateStageResult> {
-  // PERMISSION CHECK: PROJECT_MANAGER and ADMIN only
-  // const session = await getServerSession(authOptions);
-  // if (!session || !canManageBuildings(session.user.role)) {
-  //   return { success: false, error: "Permission denied" };
-  // }
+  const session = await getServerSession(authOptions);
+  if (!session || !canManageBuildings((session.user as any).role)) {
+    return { success: false, error: "Permission denied" };
+  }
 
   const parsed = updateStageSchema.safeParse(input);
   if (!parsed.success) {

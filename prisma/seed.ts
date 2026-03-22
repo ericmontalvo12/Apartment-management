@@ -15,6 +15,7 @@
  */
 
 import { PrismaClient, TradeType, StageStatus, UnitStatus, UserRole } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -162,6 +163,7 @@ async function main() {
   console.log(`✅ Workspace: ${workspace.name}`);
 
   // ── Users ──────────────────────────────────────────────────────────────────
+  const hashedPassword = await bcrypt.hash("demo1234", 10);
   const users = await Promise.all([
     prisma.user.create({
       data: {
@@ -169,6 +171,7 @@ async function main() {
         email: "admin@acmereno.com",
         name: "Alex Admin",
         role: UserRole.ADMIN,
+        password: hashedPassword,
       },
     }),
     prisma.user.create({
@@ -177,6 +180,7 @@ async function main() {
         email: "jordan@acmereno.com",
         name: "Jordan Lee",
         role: UserRole.PROJECT_MANAGER,
+        password: hashedPassword,
       },
     }),
     prisma.user.create({
@@ -185,6 +189,7 @@ async function main() {
         email: "sam@acmereno.com",
         name: "Sam Rivera",
         role: UserRole.PROJECT_MANAGER,
+        password: hashedPassword,
       },
     }),
   ]);
@@ -384,7 +389,7 @@ async function main() {
 
   console.log("\n🎉 Seed complete!");
   console.log("─────────────────────────────────");
-  console.log("Demo login: jordan@acmereno.com");
+  console.log("Demo login: jordan@acmereno.com / demo1234");
   console.log("─────────────────────────────────");
 }
 

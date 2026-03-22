@@ -1,53 +1,69 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatRelativeDate } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
+import { DailyUpdateForm } from "@/components/forms/daily-update-form";
 
 interface UpdateItem {
   id: string;
   date: Date;
   notes: string;
   author: { name: string | null; image: string | null };
-  stageName?: string;
+  stageName?: string | null;
   unitNumber?: string;
-  buildingName?: string;
+  buildingName?: string | null;
   attachments: { id: string; url: string }[];
+}
+
+interface Stage {
+  id: string;
+  template: { name: string };
 }
 
 interface DailyUpdateFeedProps {
   updates: UpdateItem[];
   unitId?: string;
+  stages?: Stage[];
   showUnit?: boolean;
 }
 
-export function DailyUpdateFeed({ updates, unitId, showUnit = false }: DailyUpdateFeedProps) {
+export function DailyUpdateFeed({ updates, unitId, stages, showUnit = false }: DailyUpdateFeedProps) {
+  const router = useRouter();
   const [expanded, setExpanded] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const visible = expanded ? updates : updates.slice(0, 5);
 
   return (
     <div className="space-y-3">
-      {/* Add update button */}
       {unitId && (
-        <Button variant="outline" size="sm" className="w-full">
+        <Button variant="outline" size="sm" className="w-full" onClick={() => setShowForm(true)}>
           <Plus className="h-3.5 w-3.5 mr-2" />
           Log Update
-          {/* TODO: Open DailyUpdateForm dialog/sheet */}
         </Button>
       )}
 
-      {updates.length === 0 ? (
-        <EmptyState
-          title="No updates yet"
-          description="Log the first daily update for this unit."
+      {showForm && unitId && (
+        <DailyUpdateForm
+          unitId={unitId}
+          stages={stages}
+          onClose={() => setShowForm(false)}
+          onSuccess={() => {
+            setShowForm(false);
+            router.refresh();
+          }}
         />
+      )}
+
+      {updates.length === 0 ? (
+        <EmptyState title="No updates yet" description="Log the first daily update for this unit." />
       ) : (
         <div className="space-y-3">
           {visible.map((update) => (
             <div key={update.id} className="flex gap-3">
-              {/* Avatar */}
               <div className="shrink-0 h-7 w-7 rounded-full bg-muted border flex items-center justify-center mt-0.5">
                 {update.author.image ? (
                   <img src={update.author.image} alt="" className="h-7 w-7 rounded-full object-cover" />
@@ -56,7 +72,6 @@ export function DailyUpdateFeed({ updates, unitId, showUnit = false }: DailyUpda
                 )}
               </div>
 
-              {/* Content */}
               <div className="flex-1 rounded-lg border bg-card p-3 text-sm">
                 <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -92,12 +107,7 @@ export function DailyUpdateFeed({ updates, unitId, showUnit = false }: DailyUpda
           ))}
 
           {updates.length > 5 && !expanded && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full text-muted-foreground"
-              onClick={() => setExpanded(true)}
-            >
+            <Button variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={() => setExpanded(true)}>
               Show {updates.length - 5} more updates
             </Button>
           )}

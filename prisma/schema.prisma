@@ -108,6 +108,7 @@ model User {
   email         String    @unique
   name          String?
   image         String?
+  password      String?
   role          UserRole  @default(VIEWER)
   emailVerified DateTime?
   createdAt     DateTime  @default(now())

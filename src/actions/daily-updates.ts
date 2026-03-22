@@ -1,10 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions, canCreateUpdates } from "@/lib/auth";
 import { z } from "zod";
-
-// TODO: import { getServerSession } from "next-auth"; import { authOptions, canCreateUpdates } from "@/lib/auth";
 
 const createUpdateSchema = z.object({
   unitId: z.string().cuid(),
@@ -19,11 +19,10 @@ export type CreateUpdateResult = { success: true; id: string } | { success: fals
 export async function createDailyUpdate(
   input: z.infer<typeof createUpdateSchema>
 ): Promise<CreateUpdateResult> {
-  // PERMISSION CHECK: Uncomment in production
-  // const session = await getServerSession(authOptions);
-  // if (!session || !canCreateUpdates(session.user.role)) {
-  //   return { success: false, error: "Permission denied" };
-  // }
+  const session = await getServerSession(authOptions);
+  if (!session || !canCreateUpdates((session.user as any).role)) {
+    return { success: false, error: "Permission denied" };
+  }
 
   const parsed = createUpdateSchema.safeParse(input);
   if (!parsed.success) {
@@ -38,7 +37,7 @@ export async function createDailyUpdate(
         notes: parsed.data.notes,
         hoursWorked: parsed.data.hoursWorked,
         date: parsed.data.date,
-        authorId: "PLACEHOLDER_USER_ID", // TODO: session.user.id
+        authorId: (session.user as any).id,
       },
     });
 

@@ -1,16 +1,13 @@
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { TopBar } from "@/components/layout/top-bar";
 
-/**
- * Main application shell layout.
- * All authenticated app pages live under this layout.
- *
- * TODO: Add getServerSession() here to protect all child routes.
- * Example:
- *   const session = await getServerSession(authOptions);
- *   if (!session) redirect("/auth/login");
- */
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/auth/login");
+
   return (
     <div className="flex h-screen overflow-hidden bg-muted/30">
       <AppSidebar />

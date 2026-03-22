@@ -1,21 +1,9 @@
 import { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
-/**
- * NextAuth configuration
- *
- * Role-based access control (RBAC) is enforced at the session level.
- * Each route/action should check session.user.role before allowing access.
- *
- * Roles:
- *   ADMIN          — full platform control
- *   PROJECT_MANAGER — manage buildings, units, updates
- *   SUBCONTRACTOR  — view own assigned work
- *   VIEWER         — read-only dashboard access
- */
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
@@ -26,13 +14,6 @@ export const authOptions: NextAuthOptions = {
     error: "/auth/error",
   },
   providers: [
-    // NOTE: Configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    }),
-
-    // Credentials provider for dev/demo login
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -40,17 +21,17 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // TODO: Implement proper password hashing (bcrypt) for production
-        // This is a placeholder for the demo seed user
-        if (!credentials?.email) return null;
+        if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        if (!user) return null;
+        if (!user || !user.password) return null;
 
-        // PLACEHOLDER: In production, verify hashed password here
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) return null;
+
         return {
           id: user.id,
           email: user.email,
@@ -65,15 +46,15 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // Attach custom fields to JWT
         token.role = (user as any).role;
         token.workspaceId = (user as any).workspaceId;
+        token.id = (user as any).id;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.sub;
+        (session.user as any).id = token.id ?? token.sub;
         (session.user as any).role = token.role;
         (session.user as any).workspaceId = token.workspaceId;
       }
@@ -83,7 +64,6 @@ export const authOptions: NextAuthOptions = {
 };
 
 // ─── Role permission helpers ──────────────────────────────────────────────────
-// Use these throughout server actions and API routes
 
 export type AppRole = "ADMIN" | "PROJECT_MANAGER" | "SUBCONTRACTOR" | "VIEWER";
 
@@ -100,5 +80,5 @@ export function canManageUsers(role: AppRole): boolean {
 }
 
 export function canViewWorkQueue(role: AppRole): boolean {
-  return true; // All roles can view; subcontractors see filtered view
+  return true;
 }
