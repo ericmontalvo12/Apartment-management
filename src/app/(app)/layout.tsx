@@ -1,12 +1,13 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
+// import { getServerSession } from "next-auth";
+// import { redirect } from "next/navigation";
+// import { authOptions } from "@/lib/auth";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { TopBar } from "@/components/layout/top-bar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
+  // Login disabled temporarily
+  // const session = await getServerSession(authOptions);
+  // if (!session) redirect("/login");
 
   return (
     <div className="flex h-screen overflow-hidden bg-muted/30">
