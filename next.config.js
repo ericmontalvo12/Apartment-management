@@ -4,7 +4,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "utfs.io", // UploadThing CDN
+        hostname: "utfs.io",
       },
       {
         protocol: "https",
@@ -18,5 +18,4 @@ const nextConfig = {
     },
   },
 };
-
 module.exports = nextConfig;
