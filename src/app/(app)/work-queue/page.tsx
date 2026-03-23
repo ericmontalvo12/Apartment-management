@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Layers } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getWorkQueueItems } from "@/lib/queries";
@@ -12,7 +13,8 @@ export const dynamic = "force-dynamic";
 
 export default async function WorkQueuePage() {
   const workspace = await prisma.workspace.findFirst();
-  const workspaceId = workspace!.id;
+  if (!workspace) notFound();
+  const workspaceId = workspace.id;
   const items = await getWorkQueueItems(workspaceId);
   const byTrade = groupWorkQueueByTrade(items);
   const bySub = groupWorkQueueBySubcontractor(items);

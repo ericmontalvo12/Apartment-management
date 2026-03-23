@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getDailyUpdates } from "@/lib/queries";
 import { DailyUpdateFeed } from "@/components/updates/daily-update-feed";
@@ -8,7 +9,8 @@ export const dynamic = "force-dynamic";
 
 export default async function UpdatesPage() {
   const workspace = await prisma.workspace.findFirst();
-  const workspaceId = workspace!.id;
+  if (!workspace) notFound();
+  const workspaceId = workspace.id;
   const updates = await getDailyUpdates(workspaceId);
 
   const feedUpdates = updates.map((u) => ({

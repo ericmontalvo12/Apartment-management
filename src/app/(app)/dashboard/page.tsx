@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Building2, Hammer, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getDashboardStats } from "@/lib/queries";
@@ -12,7 +13,8 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const workspace = await prisma.workspace.findFirst();
-  const workspaceId = workspace!.id;
+  if (!workspace) notFound();
+  const workspaceId = workspace.id;
   const stats = await getDashboardStats(workspaceId);
 
   return (

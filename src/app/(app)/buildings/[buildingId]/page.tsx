@@ -18,7 +18,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BuildingDetailPage({ params }: Props) {
   const workspace = await prisma.workspace.findFirst();
-  const workspaceId = workspace!.id;
+  if (!workspace) notFound();
+  const workspaceId = workspace.id;
   const building = await getBuilding(params.buildingId, workspaceId);
   if (!building) notFound();
 

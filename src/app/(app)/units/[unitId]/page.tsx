@@ -16,7 +16,8 @@ export const dynamic = "force-dynamic";
 
 export default async function UnitDetailPage({ params }: { params: { unitId: string } }) {
   const workspace = await prisma.workspace.findFirst();
-  const workspaceId = workspace!.id;
+  if (!workspace) notFound();
+  const workspaceId = workspace.id;
 
   const [unit, allSubs] = await Promise.all([
     getUnit(params.unitId),

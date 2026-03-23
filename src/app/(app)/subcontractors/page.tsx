@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getSubcontractors } from "@/lib/queries";
@@ -12,7 +13,8 @@ export const dynamic = "force-dynamic";
 
 export default async function SubcontractorsPage() {
   const workspace = await prisma.workspace.findFirst();
-  const workspaceId = workspace!.id;
+  if (!workspace) notFound();
+  const workspaceId = workspace.id;
   const subcontractors = await getSubcontractors(workspaceId);
   const activeCount = subcontractors.filter((s) => s.isActive).length;
 
