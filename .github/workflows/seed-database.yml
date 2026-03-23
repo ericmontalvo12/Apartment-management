@@ -25,6 +25,11 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Push schema to database (creates tables)
+        run: npx prisma db push
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Run seed
         run: npm run db:seed
         env:
