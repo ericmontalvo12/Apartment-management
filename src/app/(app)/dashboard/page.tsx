@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
 import { Building2, Hammer, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
-import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getDashboardStats } from "@/lib/queries";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TradeWorkSummaryCard } from "@/components/dashboard/trade-work-summary-card";
@@ -12,9 +10,8 @@ import { DashboardChart } from "@/components/dashboard/dashboard-chart";
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
-  if (!session) redirect('/login');
-  const workspaceId = (session.user as any).workspaceId as string;
+  const workspace = await prisma.workspace.findFirst();
+  const workspaceId = workspace!.id;
   const stats = await getDashboardStats(workspaceId);
 
   return (

@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getBuilding } from "@/lib/queries";
 import { createUnit } from "@/actions/units";
 import { UnitForm } from "@/components/forms/unit-form";
@@ -23,8 +22,8 @@ async function createUnitAction(_buildingId: string, formData: any) {
 }
 
 export default async function NewUnitPage({ params }: Props) {
-  const session = await getServerSession(authOptions);
-  const workspaceId = (session!.user as any).workspaceId as string;
+  const workspace = await prisma.workspace.findFirst();
+  const workspaceId = workspace!.id;
   const building = await getBuilding(params.buildingId, workspaceId);
   if (!building) notFound();
 

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getSubcontractors } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
 import { SubcontractorTable } from "@/components/subcontractors/subcontractor-table";
@@ -12,9 +10,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 export const metadata: Metadata = { title: "Subcontractors" };
 
 export default async function SubcontractorsPage() {
-  const session = await getServerSession(authOptions);
-  if (!session) redirect('/login');
-  const workspaceId = (session.user as any).workspaceId as string;
+  const workspace = await prisma.workspace.findFirst();
+  const workspaceId = workspace!.id;
   const subcontractors = await getSubcontractors(workspaceId);
   const activeCount = subcontractors.filter((s) => s.isActive).length;
 

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getServerSession } from "next-auth";
 import { ArrowLeft, BedDouble, Bath, Maximize2 } from "lucide-react";
-import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getUnit, getSubcontractors } from "@/lib/queries";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { StageTable } from "@/components/units/stage-table";
@@ -15,8 +14,8 @@ import { computeUnitCompletionPercent } from "@/lib/renovation-utils";
 export const metadata: Metadata = { title: "Unit Detail" };
 
 export default async function UnitDetailPage({ params }: { params: { unitId: string } }) {
-  const session = await getServerSession(authOptions);
-  const workspaceId = (session!.user as any).workspaceId as string;
+  const workspace = await prisma.workspace.findFirst();
+  const workspaceId = workspace!.id;
 
   const [unit, allSubs] = await Promise.all([
     getUnit(params.unitId),

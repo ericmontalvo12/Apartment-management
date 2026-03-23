@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
 import { Layers } from "lucide-react";
-import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getWorkQueueItems } from "@/lib/queries";
 import { WorkQueueByTradeList } from "@/components/work-queue/work-queue-by-trade";
 import { WorkQueueBySubList } from "@/components/work-queue/work-queue-by-sub";
@@ -12,9 +10,8 @@ import { groupWorkQueueByTrade, groupWorkQueueBySubcontractor } from "@/lib/reno
 export const metadata: Metadata = { title: "Work Queue" };
 
 export default async function WorkQueuePage() {
-  const session = await getServerSession(authOptions);
-  if (!session) redirect('/login');
-  const workspaceId = (session.user as any).workspaceId as string;
+  const workspace = await prisma.workspace.findFirst();
+  const workspaceId = workspace!.id;
   const items = await getWorkQueueItems(workspaceId);
   const byTrade = groupWorkQueueByTrade(items);
   const bySub = groupWorkQueueBySubcontractor(items);

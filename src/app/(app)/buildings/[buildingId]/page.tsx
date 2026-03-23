@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getServerSession } from "next-auth";
 import { ArrowLeft, MapPin, Plus } from "lucide-react";
-import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getBuilding } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
 import { UnitTable } from "@/components/units/unit-table";
@@ -16,8 +15,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BuildingDetailPage({ params }: Props) {
-  const session = await getServerSession(authOptions);
-  const workspaceId = (session!.user as any).workspaceId as string;
+  const workspace = await prisma.workspace.findFirst();
+  const workspaceId = workspace!.id;
   const building = await getBuilding(params.buildingId, workspaceId);
   if (!building) notFound();
 
