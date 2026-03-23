@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { groupWorkQueueByTrade, groupWorkQueueBySubcontractor } from "@/lib/renovation-utils";
 
 export const metadata: Metadata = { title: "Work Queue" };
+export const dynamic = "force-dynamic";
 
 export default async function WorkQueuePage() {
   const workspace = await prisma.workspace.findFirst();

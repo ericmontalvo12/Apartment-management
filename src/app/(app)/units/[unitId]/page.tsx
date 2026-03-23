@@ -12,6 +12,7 @@ import { PhotoUploadPlaceholder } from "@/components/units/photo-upload-placehol
 import { computeUnitCompletionPercent } from "@/lib/renovation-utils";
 
 export const metadata: Metadata = { title: "Unit Detail" };
+export const dynamic = "force-dynamic";
 
 export default async function UnitDetailPage({ params }: { params: { unitId: string } }) {
   const workspace = await prisma.workspace.findFirst();

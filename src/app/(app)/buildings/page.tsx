@@ -8,6 +8,7 @@ import { BuildingCard } from "@/components/buildings/building-card";
 import { EmptyState } from "@/components/ui/empty-state";
 
 export const metadata: Metadata = { title: "Buildings" };
+export const dynamic = "force-dynamic";
 
 export default async function BuildingsPage() {
   const workspace = await prisma.workspace.findFirst();

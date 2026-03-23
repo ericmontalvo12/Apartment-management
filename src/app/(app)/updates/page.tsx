@@ -4,6 +4,7 @@ import { getDailyUpdates } from "@/lib/queries";
 import { DailyUpdateFeed } from "@/components/updates/daily-update-feed";
 
 export const metadata: Metadata = { title: "Daily Updates" };
+export const dynamic = "force-dynamic";
 
 export default async function UpdatesPage() {
   const workspace = await prisma.workspace.findFirst();

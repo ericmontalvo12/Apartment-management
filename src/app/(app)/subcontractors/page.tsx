@@ -8,6 +8,7 @@ import { SubcontractorTable } from "@/components/subcontractors/subcontractor-ta
 import { EmptyState } from "@/components/ui/empty-state";
 
 export const metadata: Metadata = { title: "Subcontractors" };
+export const dynamic = "force-dynamic";
 
 export default async function SubcontractorsPage() {
   const workspace = await prisma.workspace.findFirst();

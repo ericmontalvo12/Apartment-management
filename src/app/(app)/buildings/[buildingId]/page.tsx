@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { UnitTable } from "@/components/units/unit-table";
 import { BuildingProgressBar } from "@/components/buildings/building-progress-bar";
 
+export const dynamic = "force-dynamic";
+
 interface Props { params: { buildingId: string } }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
